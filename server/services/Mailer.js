@@ -13,7 +13,7 @@ class Mailer extends helper.Mail {
     this.recipients = this.formatAddresses(recipients);
 
     // helper.Mail built-in class
-    this.addContent(body);
+    this.addContent(this.body);
 
     // Defined helper Functions
     this.addClickTracking();
@@ -48,7 +48,7 @@ class Mailer extends helper.Mail {
 
   async send() {
     const request = this.sgApi.emptyRequest({
-      method: POST,
+      method: 'POST',
       path: '/v3/mail/send',
       body: this.toJSON()
     });
