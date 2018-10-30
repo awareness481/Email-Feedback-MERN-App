@@ -4,6 +4,7 @@ import { reduxForm, Field } from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import SurveyField from './SurveyField';
+import validateEmails from '../../utils/validateEmails';
 
 const FIELDS = [
   {label: 'SurveyTitle', name :'title'},
@@ -22,7 +23,7 @@ class SurveyForm extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit(values => console.log(values))}
+        <form onSubmit={this.props.handleSubmit(this.props.onSurveySubmit)}
         >
           {this.renderFields()}
           <Link to='/surveys' className='red btn-flat white-text'>
@@ -43,6 +44,8 @@ class SurveyForm extends Component {
 function validate(values) {
   // If errors object is empty form is valid
   const errors = {};
+
+  errors.emails = validateEmails(values.emails || '');
 
   _.each(FIELDS, ({ name }) => {
     if (!values[name]) {
