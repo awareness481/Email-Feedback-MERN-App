@@ -40,7 +40,7 @@ function validate(values) {
   // If errors object is empty form is valid
   const errors = {};
 
-  errors.emails = validateEmails(values.emails || '');
+  errors.recipients = validateEmails(values.recipients || '');
 
   _.each(formFields, ({ name }) => {
     if (!values[name]) {
