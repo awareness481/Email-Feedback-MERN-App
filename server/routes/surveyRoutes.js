@@ -20,7 +20,7 @@ module.exports = app => {
     const p = new Path('/api/surveys/:surveyId/:choice');
 
     // uniqBy is true when both email, surveyId are identical
-    const events = _.chain(req.body)
+    _.chain(req.body)
       .map(({email, url}) => {
         const match = p.test(new URL(url).pathname);
       
@@ -30,6 +30,17 @@ module.exports = app => {
     })
     .compact() 
     .uniqBy('email', 'surveyId')
+    .each(({ surveyId, email, choice }) => {
+      Survey.updateOne({
+        _id: surveyId,
+        recipients: {
+          $elemMatch: { email: email, responded: false }
+        }
+      }, {
+        $inc: { [choice]: 1 },
+        $set: { 'recipients.$.responded': true }
+      }).exec();
+    })
     .value(); 
  
     // Send an ok response to sendGrid
