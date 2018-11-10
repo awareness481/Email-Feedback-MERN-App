@@ -1,10 +1,14 @@
 const mongoose = require('mongoose');
+const _ = require('lodash');
+const Path = require('path-parser').default;
+const { URL } = require('url');
+
+//MIDDLEWARE
 const requireLogin = require('../middlewares/requireLogin');
 const requireCredits = require('../middlewares/requireCredits');
 
 const Mailer = require('../services/Mailer');
 const surveyTemplate = require('../services/emailTemplates/surveyTemplate');
-
 const Survey = mongoose.model('surveys');
 
 module.exports = app => {
@@ -13,7 +17,22 @@ module.exports = app => {
   })
 
   app.post('/api/surveys/webhooks', (req, res) => {
-    console.log(req.body);
+    const p = new Path('/api/surveys/:surveyId/:choice');
+
+    // uniqBy is true when both email, surveyId are identical
+    const events = _.chain(req.body)
+      .map(({email, url}) => {
+        const match = p.test(new URL(url).pathname);
+      
+        if (match) {
+          return { email, surveyId: match.surveyId, choice: match.choice };
+        }
+    })
+    .compact() 
+    .uniqBy('email', 'surveyId')
+    .value(); 
+ 
+    // Send an ok response to sendGrid
     res.send({});
   })
 
